@@ -9,39 +9,32 @@ pipeline {
     }
 
     stages {
-       
-        stage('Logging into AWS ECR') {
-            steps {
-                    
-                script {sh "docker login --username AWS --password-stdin 060213843072.dkr.ecr.us-east-2.amazonaws.com"
-                }
-            }
-        }
-        stage('Cloning git') {
-            steps {
-                script {
-                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Mateen12a/gitopsapi.git']])
-                }
-            }
-        }
-        
-        stage ('Building Image') {
-            steps {
-                script {
-                    dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-        stage ('Pushing to ECR') {
-            steps {
-                script{
-                    docker.withRegistry('https://060213843072.dkr.ecr.us-east-2.amazonaws.com', 'ecr:us-east-2:aws-credentials') {                    
-                    dockerImage.push("${env.BUILD_NUMBER}")
-                    dockerImage.push("latest")
-                    }
-                }
-            }
-        }
+       stage('Build Docker Image'){
+		sh "docker build -t fifemateen/docker-jenkins:${env.BUILD_ID} ."
+	}
+
+        stage('Push Image to Docker Hub'){
+		withCredentials([string(credentialsId: 'docker_hub', variable: 'docker_hub')]) {
+			sh "docker login -u fifemateen -p ${docker_hub}"
+		}
+		sh "docker push fifemateen/docker-jenkins:${env.BUILD_ID}"
+	}
+
+        stage('Push Image in ECR'){
+		ECRURL = 'https://060213843072.dkr.ecr.us-east-2.amazonaws.com'
+		ECRRED = 'ecr:us-east-2:awscredentials'
+		docker.withRegistry("${ECRURL}","${ECRRED}"){
+			docker.image("fifemateen/docker-jenkins:${env.BUILD_ID}").push()
+		}
+	}
+
+        stage('Run Container on AWS Server'){
+		def dockerRun = "docker run -d -p 8080:8080 --name myapp-${env.BUILD_ID} fifemateen/docker-jenkins:${env.BUILD_ID}"
+		sshagent(['aws_instance']) {
+		    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.83 ${dockerRun}"
+		}
+	}
+
         stage ('Updating the Deployment File') {
             environment {
                 GIT_REPO_NAME = "gitopsapi"
