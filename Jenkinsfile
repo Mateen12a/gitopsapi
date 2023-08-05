@@ -3,7 +3,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID="060213843072"
         AWS_DEFAULT_REGION="US-EAST-2"
-        IMAGE_REPO_NAME="gitopsapi"
+        IMAGE_REPO_NAME="gitops"
         IMAGE_TAG="latest"
         REPOSITORY_URI= "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
@@ -46,7 +46,6 @@ pipeline {
             environment {
                 GIT_REPO_NAME = "gitopsapi"
                 GIT_USER_NAME = "Mateen12a"
-		GITHUB_TOKEN = "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"
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]){
