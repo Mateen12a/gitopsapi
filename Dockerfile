@@ -4,6 +4,6 @@ RUN apt-get update && apt-get install -y procps vim
 
 COPY . /web
 
-RUN pip install -r requirements.txt && pip install gunicorn
+RUN pip install -r ./web/requirements.txt && pip install gunicorn
 
-ENTRYPOINT ["/runserver.sh"]
+ENTRYPOINT ["./web/runserver.sh"]
