@@ -8,7 +8,7 @@ pipeline {
         REPOSITORY_URI= "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
 
-    stages {
+    
        stage('Build Docker Image'){
 		sh "docker build -t fifemateen/docker-jenkins:${env.BUILD_ID} ."
 	}
@@ -35,29 +35,5 @@ pipeline {
 		}
 	}
 
-        stage ('Updating the Deployment File') {
-            environment {
-                GIT_REPO_NAME = "gitopsapi"
-                GIT_USER_NAME = "Mateen12a"
-            }
-            steps {
-                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]){
-                    sh '''
-                    
-                        git pull https://github.com/Mateen12a/gitopsapi.git
-                        git config  user.email "ajidagbamateen12@gmail.com"
-                        git config  user.name "Mateen12a"
-                        BUILD_NUMBER=${BUILD_NUMBER}
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" ArgoCD/deployments.yml
-                        git add ArgoCD/deployments.yml
-                        git commit -m "updated the image ${BUILD_NUMBER}"
-                        git push @github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME">https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                        
-                       
-                    '''
-                }
-            }
-        }
-    }
-
+        
 }
