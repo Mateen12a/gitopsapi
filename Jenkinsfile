@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         AWS_ACCOUNT_ID="060213843072"
-        AWS_DEFAULT_REGION="US-EAST-2"
+        AWS_DEFAULT_REGION="us-east-2"
         IMAGE_REPO_NAME="gitops"
         IMAGE_TAG="latest"
         REPOSITORY_URI= "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
