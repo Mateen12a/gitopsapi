@@ -78,7 +78,7 @@ pipeline {
             }
         }
      }
-    }
+    
     
 
     post {
@@ -94,4 +94,4 @@ pipeline {
         }
     }
 
-
+}
