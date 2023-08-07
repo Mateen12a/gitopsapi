@@ -71,9 +71,4 @@ pipeline {
     }
 }
 
-// "Dummy Stage" outside the post section
-stage('Dummy Stage') {
-    steps {
-        echo 'This is a dummy stage for Jenkins pipeline'
-    }
-}
+
