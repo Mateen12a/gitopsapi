@@ -29,7 +29,7 @@ metadata:
   name: lb-service
 spec:
   selector:
-    app: gitopsapi  # Update this line
+    app: lb-service  # Update this line
   type: LoadBalancer
   ports:
     - protocol: TCP
