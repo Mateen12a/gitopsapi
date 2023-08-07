@@ -1,33 +1,63 @@
-node {
-	
+pipeline {
+    agent any
+
+    environment {
+        // Define AWS ECR repository information
+        ECR_REGISTRY = "060213843072.dkr.ecr.us-east-2.amazonaws.com/"
+        ECR_REPO_NAME = "gitops"
+        DOCKER_IMAGE_TAG = "latest"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Check out the code from the Git repository
+                // Make sure you have the proper Git credentials configured in Jenkins
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image from the Dockerfile in the /web folder
+                    def dockerImage = docker.build("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}", "./web")
+
+                    // Tag the image for pushing to ECR
+                    dockerImage.tag("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}")
+
+                    // Display the Docker image details
+                    dockerImage.inside {
+                        sh 'docker images'
+                    }
+                }
+            }
+        }
+
+        stage('Push to AWS ECR') {
+    steps {
+        script {
+            // Read AWS credentials from Jenkins credentials
+            withCredentials([string(credentialsId: '73386119-c3fe-45d8-9b03-fb09ceb80d02', variable: 'AWS_CREDENTIALS')]) {
+                // Configure AWS CLI with the credentials from Jenkins
+                sh "aws configure set aws_access_key_id ${AWS_CREDENTIALS}"
+                sh "aws configure set aws_secret_access_key ${AWS_CREDENTIALS}"
+
+                // Log in to AWS ECR using the AWS CLI
+                sh "aws ecr get-login-password --region AWS_REGION | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+
+                // Push the Docker image to AWS ECR
+                sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+            }
+        }
+    }
+}
 
 
-    
-       stage('Build Docker Image'){
-		sh "docker build -t fifemateen/docker-jenkins:${env.BUILD_ID} ."
-	}
-
-        stage('Push Image to Docker Hub'){
-		withCredentials([string(credentialsId: 'docker_hub', variable: 'docker_hub')]) {
-			sh "docker login -u fifemateen -p ${docker_hub}"
-		}
-		sh "docker push fifemateen/docker-jenkins:${env.BUILD_ID}"
-	}
-
-        stage('Push Image in ECR'){
-		ECRURL = 'https://060213843072.dkr.ecr.us-east-2.amazonaws.com'
-		ECRRED = 'ecr:us-east-2:awscredentials'
-		docker.withRegistry("${ECRURL}","${ECRRED}"){
-			docker.image("fifemateen/docker-jenkins:${env.BUILD_ID}").push()
-		}
-	}
-
-        stage('Run Container on AWS Server'){
-		def dockerRun = "docker run -d -p 8080:8080 --name myapp-${env.BUILD_ID} fifemateen/docker-jenkins:${env.BUILD_ID}"
-		sshagent(['aws_instance']) {
-		    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.83 ${dockerRun}"
-		}
-	}
-
-        
+    post {
+        always {
+            // Clean up Docker images after the build is complete
+            sh 'docker system prune -f'
+        }
+    }
 }
