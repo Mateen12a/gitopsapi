@@ -14,6 +14,12 @@ WORKDIR /app
 # Copy the application files into the container
 COPY . .
 
+# Copy the runserver.sh script into the container
+COPY runserver.sh /runserver.sh
+
+# Set execute permissions for the runserver.sh script
+RUN chmod +x /runserver.sh
+
 # Install application dependencies
 RUN pip install -r requirements.txt && pip install gunicorn
 
