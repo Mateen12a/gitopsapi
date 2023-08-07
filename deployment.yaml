@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: gitopsapi
   labels:
     app: gitopsapi
@@ -13,14 +12,13 @@ spec:
   strategy: {}
   template:
     metadata:
-    creationTimestamp: null
       labels:
         app: gitopsapi
     spec:
       containers:
         - name: gitopsapi
-          image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest  # Replace with the actual image path in your ECR repository
-          resources: {}  # Replace with the port number exposed by the application
+          image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest
+          resources: {} 
 status: {}          
 ---
 apiVersion: v1
