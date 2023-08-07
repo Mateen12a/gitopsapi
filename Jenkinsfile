@@ -45,7 +45,7 @@ pipeline {
                         sh "aws configure set aws_secret_access_key ${AWS_CREDENTIALS}"
 
                         // Log in to AWS ECR using the AWS CLI
-                        sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
                         // Push the Docker image to AWS ECR
                         sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
@@ -53,12 +53,19 @@ pipeline {
                 }
             }
         }
-        
-        post {
-            always {
-                // Clean up Docker images after the build is complete
-                sh 'docker system prune -f'
-            }
+    }
+
+    post {
+        always {
+            // Clean up Docker images after the build is complete
+            sh 'docker system prune -f'
+        }
+    }
+
+    // A dummy stage to satisfy Jenkins requirement of at least one stage
+    stage('Dummy Stage') {
+        steps {
+            echo 'Dummy stage for Jenkins pipeline'
         }
     }
 }
