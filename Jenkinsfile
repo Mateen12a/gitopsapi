@@ -60,12 +60,18 @@ pipeline {
             // Clean up Docker images after the build is complete
             sh 'docker system prune -f'
         }
-    }
-
-    // A dummy stage to satisfy Jenkins requirement of at least one stage
-    stage('Dummy Stage') {
-        steps {
-            echo 'Dummy stage for Jenkins pipeline'
+        success {
+            echo 'Build and push successful!'
         }
+        failure {
+            echo 'Build or push failed!'
+        }
+    }
+}
+
+// "Dummy Stage" outside the post section
+stage('Dummy Stage') {
+    steps {
+        echo 'This is a dummy stage for Jenkins pipeline'
     }
 }
