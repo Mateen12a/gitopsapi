@@ -55,17 +55,6 @@ pipeline {
                 }
             }
         }
-         stage('Update Manifest') {
-            steps {
-                script {
-                    // Generate the deployment YAML with the updated image tag
-                    sh "sed -i 's|060213843072.dkr.ecr.us-east-2.amazonaws.com/gitopsapi:latest|${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}|' deployment.yaml"
-
-                    // Apply the updated deployment YAML to the Kubernetes cluster using Argo CD
-                    sh "kubectl apply -f deployment.yaml"
-                }
-            }
-        }
     }
 
     post {
