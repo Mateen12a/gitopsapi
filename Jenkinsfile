@@ -6,7 +6,8 @@ pipeline {
         ECR_REGISTRY = "060213843072.dkr.ecr.us-east-2.amazonaws.com"
         ECR_REPO_NAME = "gitops"
         DOCKER_IMAGE_TAG = "latest"
-        AWS_REGION = "us-east-2" // Replace this with the actual AWS region
+        CUSTOM_IMAGE_TAG = "v1.0"
+        AWS_REGION = "us-east-2"
     }
 
     stages {
@@ -24,8 +25,11 @@ pipeline {
                     // Build the Docker image from the Dockerfile in the /web folder
                     def dockerImage = docker.build("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}", "./web")
 
-                    // Tag the image for pushing to ECR
+                    // Tag the image for pushing to ECR with the 'latest' tag
                     dockerImage.tag("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}")
+
+                    // Tag the image with a custom tag 'v1.0'
+                    dockerImage.tag("${ECR_REGISTRY}/${ECR_REPO_NAME}:${CUSTOM_IMAGE_TAG}")
 
                     // Display the Docker image details
                     dockerImage.inside {
@@ -47,8 +51,9 @@ pipeline {
                         // Log in to AWS ECR using the AWS CLI
                         sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
-                        // Push the Docker image to AWS ECR
+                        // Push the Docker image with both tags to AWS ECR
                         sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+                        sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${CUSTOM_IMAGE_TAG}"
                     }
                 }
             }
@@ -66,12 +71,5 @@ pipeline {
         failure {
             echo 'Build or push failed!'
         }
-    }
-}
-
-// "Dummy Stage" outside the post section
-stage('Dummy Stage') {
-    steps {
-        echo 'This is a dummy stage for Jenkins pipeline'
     }
 }
