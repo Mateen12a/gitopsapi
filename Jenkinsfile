@@ -16,7 +16,7 @@ pipeline {
             steps {
                 // Check out the code from the Git repository
                 // Make sure you have the proper Git credentials configured in Jenkins
-                checkout scm
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Mateen12a/gitopsapi.git']]])
             }
         }
 
