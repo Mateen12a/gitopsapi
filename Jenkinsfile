@@ -6,7 +6,6 @@ pipeline {
         ECR_REGISTRY = "060213843072.dkr.ecr.us-east-2.amazonaws.com"
         ECR_REPO_NAME = "gitops"
         DOCKER_IMAGE_TAG = "latest"
-        CUSTOM_IMAGE_TAG = "v1.0"
         AWS_REGION = "us-east-2" // Replace this with the actual AWS region
     }
 
@@ -26,7 +25,8 @@ pipeline {
                     def dockerImage = docker.build("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}", "./web")
 
                     // Tag the image for pushing to ECR
-                    dockerImage.tag("${ECR_REGISTRY}/${ECR_REPO_NAME}:${CUSTOM_IMAGE_TAG}")
+                    sh "docker tag 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest"
+
 
                     // Display the Docker image details
                     dockerImage.inside {
