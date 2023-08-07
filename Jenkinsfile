@@ -22,16 +22,15 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image from the Dockerfile in the /web folder
-                    def dockerImage = docker.build("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}", "./web")
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG} ./web"
 
                     // Tag the image for pushing to ECR
                     sh "docker tag 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest"
 
 
-                    // Display the Docker image details
-                    dockerImage.inside {
-                        sh 'docker images'
-                    }
+                    // Display the Docker image detail
+                    sh 'docker images'
+                
                 }
             }
         }
