@@ -61,7 +61,7 @@ pipeline {
                 script {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}_nginx ./nginx"
 
-                    sh "docker tag 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops_nginx 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops_nginx"
+
 
                     sh 'docker images'
                 }
