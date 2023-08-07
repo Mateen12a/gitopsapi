@@ -3,9 +3,10 @@ pipeline {
 
     environment {
         // Define AWS ECR repository information
-        ECR_REGISTRY = "060213843072.dkr.ecr.us-east-2.amazonaws.com/"
+        ECR_REGISTRY = "060213843072.dkr.ecr.us-east-2.amazonaws.com"
         ECR_REPO_NAME = "gitops"
         DOCKER_IMAGE_TAG = "latest"
+        AWS_REGION = "us-east-2" // Replace this with the actual AWS region
     }
 
     stages {
@@ -35,30 +36,29 @@ pipeline {
         }
 
         stage('Push to AWS ECR') {
-    steps {
-        script {
-            // Read AWS credentials from Jenkins credentials
-            withCredentials([string(credentialsId: '73386119-c3fe-45d8-9b03-fb09ceb80d02', variable: 'AWS_CREDENTIALS')]) {
-                // Configure AWS CLI with the credentials from Jenkins
-                sh "aws configure set aws_access_key_id ${AWS_CREDENTIALS}"
-                sh "aws configure set aws_secret_access_key ${AWS_CREDENTIALS}"
+            steps {
+                script {
+                    // Read AWS credentials from Jenkins credentials
+                    withCredentials([string(credentialsId: '73386119-c3fe-45d8-9b03-fb09ceb80d02', variable: 'AWS_CREDENTIALS')]) {
+                        // Configure AWS CLI with the credentials from Jenkins
+                        sh "aws configure set aws_access_key_id ${AWS_CREDENTIALS}"
+                        sh "aws configure set aws_secret_access_key ${AWS_CREDENTIALS}"
 
-                // Log in to AWS ECR using the AWS CLI
-                sh "aws ecr get-login-password --region AWS_REGION | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                        // Log in to AWS ECR using the AWS CLI
+                        sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
-                // Push the Docker image to AWS ECR
-                sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+                        // Push the Docker image to AWS ECR
+                        sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        
+        post {
+            always {
+                // Clean up Docker images after the build is complete
+                sh 'docker system prune -f'
             }
         }
     }
-}
-
-
-    post {
-        always {
-            // Clean up Docker images after the build is complete
-            sh 'docker system prune -f'
-        }
-    }
-}
 }
