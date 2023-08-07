@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.8.2-jdk-11' // Specify a Docker image with Maven and Java 11
+            args '-v /your/host/workspace:/your/container/workspace' // Optionally mount volumes
+        }
+    }
 
     environment {
         // Define AWS ECR repository information
@@ -26,7 +31,6 @@ pipeline {
 
                     // Tag the image for pushing to ECR
                     sh "docker tag 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest"
-
 
                     // Display the Docker image details
                     dockerImage.inside {
@@ -67,12 +71,5 @@ pipeline {
         failure {
             echo 'Build or push failed!'
         }
-    }
-}
-
-// "Dummy Stage" outside the post section
-stage('Dummy Stage') {
-    steps {
-        echo 'This is a dummy stage for Jenkins pipeline'
     }
 }
