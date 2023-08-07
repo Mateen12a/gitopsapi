@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     // Read AWS credentials from Jenkins credentials
-                    withCredentials([string(credentialsId: '73386119-c3fe-45d8-9b03-fb09ceb80d02', variable: 'AWS_CREDENTIALS')]) {
+                    withCredentials([string(credentialsId: '7f0076a6-a46f-4f83-8ad6-3cf006babb08', variable: 'AWS_CREDENTIALS')]) {
                         // Configure AWS CLI with the credentials from Jenkins
                         sh "aws configure set aws_access_key_id ${AWS_CREDENTIALS}"
                         sh "aws configure set aws_secret_access_key ${AWS_CREDENTIALS}"
