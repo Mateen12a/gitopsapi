@@ -17,8 +17,8 @@ spec:
       containers:
         - name: gitopsapi
           image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest
-          ports:
-            - containerPort: 80
+          resources: {}
+status: {}
 ---
 apiVersion: v1
 kind: Service
@@ -26,7 +26,7 @@ metadata:
   name: lb-service
 spec:
   selector:
-    app: gitopsapi
+    app: lb-service
   type: LoadBalancer
   ports:
     - protocol: TCP
