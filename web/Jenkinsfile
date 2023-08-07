@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // Define AWS ECR repository information
-        ECR_REGISTRY = "060213843072.dkr.ecr.us-east-2.amazonaws.com/"
-        ECR_REPO_NAME = "gitops"
-        DOCKER_IMAGE_TAG = "latest"
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -17,47 +10,37 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                script {
-                    // Build the Docker image from the Dockerfile in the /web folder
-                    def dockerImage = docker.build("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}", "./web")
-
-                    // Tag the image for pushing to ECR
-                    dockerImage.tag("${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}")
-
-                    // Display the Docker image details
-                    dockerImage.inside {
-                        sh 'docker images'
-                    }
-                }
+                // In a real scenario, you would build your code here
+                echo 'Building the code...'
             }
         }
 
-        stage('Push to AWS ECR') {
-    steps {
-        script {
-            // Read AWS credentials from Jenkins credentials
-            withCredentials([string(credentialsId: '73386119-c3fe-45d8-9b03-fb09ceb80d02', variable: 'AWS_CREDENTIALS')]) {
-                // Configure AWS CLI with the credentials from Jenkins
-                sh "aws configure set aws_access_key_id ${AWS_CREDENTIALS}"
-                sh "aws configure set aws_secret_access_key ${AWS_CREDENTIALS}"
-
-                // Log in to AWS ECR using the AWS CLI
-                sh "aws ecr get-login-password --region AWS_REGION | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-
-                // Push the Docker image to AWS ECR
-                sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+        stage('Test') {
+            steps {
+                // In a real scenario, you would run your tests here
+                echo 'Running tests...'
+                // You can replace the echo statements with actual test commands
+                // For example, to run unit tests, you might use:
+                // sh './gradlew test'  (for a Gradle-based project)
+                // or
+                // sh 'mvn test'  (for a Maven-based project)
             }
         }
     }
-}
-
 
     post {
         always {
-            // Clean up Docker images after the build is complete
-            sh 'docker system prune -f'
+            // Clean up after the build is complete
+            echo 'Performing cleanup...'
+            // In a real scenario, you might clean up Docker images or temporary files.
+        }
+        success {
+            echo 'Build and test successful!'
+        }
+        failure {
+            echo 'Build or test failed!'
         }
     }
 }
