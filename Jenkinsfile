@@ -55,7 +55,38 @@ pipeline {
                 }
             }
         }
+
+        stage('Build NGINX Image') {
+            steps {
+                script {
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}_nginx ./nginx"
+
+                    sh "docker tag 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops_nginx 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops_nginx"
+
+                    sh 'docker images'
+                }
+            }
+        }
+
+        stage('Push NGINX Image to ECR') {
+            steps {
+                script {
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}_nginx"
+                }
+            }
+        }
+
+        stage('Trigger ManifestUpdate') {
+            steps {
+                echo "Triggering updatemanifestjob"
+                build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+            }
+        }
     }
+    }
+    
 
     post {
         always {
