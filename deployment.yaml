@@ -20,10 +20,7 @@ spec:
         - name: gitopsapi
           image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest  # Replace with the actual image path in your ECR repository
           resources: {}  # Replace with the port number exposed by the application
-  status: {}          
-            # Add more environment variables as needed
- 
-# Add any additional resources, volumes, or other configurations specific to your application deployment
+status: {}          
 ---
 apiVersion: v1
 kind: Service
