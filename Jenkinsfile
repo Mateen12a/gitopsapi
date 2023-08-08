@@ -56,22 +56,25 @@ pipeline {
             }
         }
 
-        stage('Build and Update Deployment') {
-    steps {
-        script {
-             // Set your Docker image tag here
-
-            // Build and push Docker image to ECR (as per your existing pipeline)
-            // ...
-
-            // Update deployment.yaml with the new image tag
-            sh "sed -i 's|image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:.*|image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest|' ./deployment.yaml"
-
-            // Commit and push the updated deployment.yaml to your Git repository
-            sh "git commit -am 'Update image tag in deployment.yaml' && git push origin main"
+        stage('Update Deployment') {
+            steps {
+                script {
+                    // Update the Deployment manifest with the new image tag
+                    def manifest = readYaml file: '/deployment.yaml'
+                    manifest.spec.template.spec.containers[0].image = "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+                    writeFile file: 'deployment.yaml', text: toYaml(manifest)
+                }
+            }
         }
-    }
-}
+
+        stage('Deploy with ArgoCD') {
+            steps {
+                script {
+                    // Trigger ArgoCD sync to deploy the updated Deployment
+                    sh "argocd app sync ${APP_NAME} --prune --async"
+                }
+            }
+        }
      }
     
     
