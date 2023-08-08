@@ -56,27 +56,15 @@ pipeline {
             }
         }
 
-        stage('Build NGINX Image') {
-            steps {
-                script {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}_nginx ./nginx"
+        stage('Trigger ManifestUpdate') {
+    steps {
+        script {
 
-
-
-                    sh 'docker images'
-                }
-            }
+            echo "Triggering updatemanifestjob with ECR image tag: ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+            build job: 'updatemanifest', parameters: [string(name: 'ECR_IMAGETAG', value: "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}")]
         }
-
-        stage('Push NGINX Image to ECR') {
-            steps {
-                script {
-                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}_nginx"
-                }
-            }
-        }
+    }
+}
      }
     
     
