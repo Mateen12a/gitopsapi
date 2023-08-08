@@ -56,12 +56,19 @@ pipeline {
             }
         }
 
-        stage('Trigger ManifestUpdate') {
+        stage('Build and Update Deployment') {
     steps {
         script {
+             // Set your Docker image tag here
 
-            echo "Triggering updatemanifestjob with ECR image tag: ${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
-            build job: 'updatemanifest', parameters: [string(name: 'ECR_IMAGETAG', value: "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}")]
+            // Build and push Docker image to ECR (as per your existing pipeline)
+            // ...
+
+            // Update deployment.yaml with the new image tag
+            sh "sed -i 's|image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:.*|image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest|' ./deployment.yaml"
+
+            // Commit and push the updated deployment.yaml to your Git repository
+            sh "git commit -am 'Update image tag in deployment.yaml' && git push origin main"
         }
     }
 }
