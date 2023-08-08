@@ -56,25 +56,6 @@ pipeline {
             }
         }
 
-        stage('Update Deployment') {
-            steps {
-                script {
-                    // Update the Deployment manifest with the new image tag
-                    def manifest = readYaml file: '/deployment.yaml'
-                    manifest.spec.template.spec.containers[0].image = "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}:latest"
-                    writeFile file: 'deployment.yaml', text: toYaml(manifest)
-                }
-            }
-        }
-
-        stage('Deploy with ArgoCD') {
-            steps {
-                script {
-                    // Trigger ArgoCD sync to deploy the updated Deployment
-                    sh "argocd app sync ${APP_NAME} --prune --async"
-                }
-            }
-        }
      }
     
     
