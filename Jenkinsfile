@@ -61,7 +61,7 @@ pipeline {
                 script {
                     // Update the Deployment manifest with the new image tag
                     def manifest = readYaml file: '/deployment.yaml'
-                    manifest.spec.template.spec.containers[0].image = "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}"
+                    manifest.spec.template.spec.containers[0].image = "${ECR_REGISTRY}/${ECR_REPO_NAME}:${DOCKER_IMAGE_TAG}:latest"
                     writeFile file: 'deployment.yaml', text: toYaml(manifest)
                 }
             }
