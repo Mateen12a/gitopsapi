@@ -20,29 +20,6 @@ spec:
           image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops:latest
           resources: {}
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    app: nginx
-spec:
-  replicas: 1  # Set the desired number of replicas for Nginx
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-        - name: nginx
-          image: 060213843072.dkr.ecr.us-east-2.amazonaws.com/gitops_nginx
-          ports:
-            - containerPort: 80
-          resources: {}
----
 apiVersion: v1
 kind: Service
 metadata:
